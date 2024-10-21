@@ -1,0 +1,13 @@
+.titlebar {
+  display: flex;
+  width: 100%;
+  height: 30px;
+  align-items: center;
+  padding-left: 10px;
+  box-sizing: border-box;
+  user-select: none;
+
+  .title {
+    font-weight: bold;
+  }
+}
