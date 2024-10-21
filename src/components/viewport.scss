@@ -6,7 +6,7 @@
   .sidebar {
     width: 40px;
     height: 100%;
-    background: rgb(220, 220, 220);
+    background: rgb(50, 50, 51);
     float: left;
 
     .icon-button {
@@ -17,16 +17,16 @@
       height: 40px;
       cursor: pointer;
       box-sizing: border-box;
-      border-left: 3px solid transparent;
-      color: #333;
+      border-left: 2px solid transparent;
+      color: rgb(133, 133, 133);
 
       &.on {
-        color: #5f6acf;
-        border-left: 3px solid #5f6acf;
+        color: #ffffff;
+        border-left: 2px solid #ffffff;
       }
 
       &:hover {
-        color: #5f6acf;
+        color: #ffffff;
       }
 
       .codicon {
@@ -38,7 +38,8 @@
   .explorer {
     height: 100%;
     float: left;
-    background: rgb(210, 210, 210);
+    background: rgb(30, 30, 31);
+    box-sizing: border-box;
 
     & > div {
       display: none;
@@ -68,22 +69,20 @@
   .tab-folder {
     height: 100%;
     float: left;
-    background: rgb(230, 230, 230);
 
     .tab-folder-header {
       height: 30px;
       width: 100%;
-      background: rgb(220, 220, 220);
+      background: rgb(37, 37, 38);
 
       .tab {
-        background: rgb(220, 220, 220);
+        background: rgb(45, 45, 45);
         display: inline-block;
         height: 100%;
         padding: 6px 30px 0 8px;
         box-sizing: border-box;
         cursor: pointer;
         position: relative;
-        color: #333;
         user-select: none;
 
         .title {
@@ -116,12 +115,12 @@
           padding: 2px;
 
           &:hover {
-            background: rgba(210, 210, 210);
+            background: rgba(59, 60, 61);
           }
         }
 
         &.on {
-          background: rgb(230, 230, 230);
+          background: rgb(33, 33, 34);
         }
       }
     }
@@ -129,6 +128,7 @@
     .tab-folder-content {
       height: calc(100% - 30px);
       width: 100%;
+      background: rgb(33, 33, 34);
 
       .canvas-container {
         width: 100%;

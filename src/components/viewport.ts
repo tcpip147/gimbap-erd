@@ -39,6 +39,77 @@ const init = () => {
   initExplorer();
   initTabFolder();
   initResizer();
+
+  let isMousedown = false;
+  let mouseInfo = {
+    originX: 0,
+    originY: 0,
+    x: 0,
+    y: 0,
+  };
+  window.addEventListener('mousedown', (e) => {
+    if (hasClass(e.target as HTMLElement, 'canvas')) {
+      isMousedown = true;
+      mouseInfo.originX = selectedTabInfo.grid.origin[0];
+      mouseInfo.originY = selectedTabInfo.grid.origin[1];
+      mouseInfo.x = e.clientX;
+      mouseInfo.y = e.clientY;
+      selectedTabInfo.canvasContainer.style.cursor = 'grab';
+    }
+  });
+  window.addEventListener('mousemove', (e) => {
+    if (isMousedown) {
+      const diffX = mouseInfo.x - e.clientX;
+      const diffY = mouseInfo.y - e.clientY;
+      let originX = mouseInfo.originX + diffX;
+      if (originX < 0) {
+        originX = 0;
+      }
+      let originY = mouseInfo.originY + diffY;
+      if (originY < 0) {
+        originY = 0;
+      }
+      selectedTabInfo.grid.origin = [originX, originY];
+      selectedTabInfo.grid.redraw();
+    }
+  });
+  window.addEventListener('mouseup', (e) => {
+    isMousedown = false;
+    mouseInfo.originX = 0;
+    mouseInfo.originY = 0;
+    mouseInfo.x = 0;
+    mouseInfo.y = 0;
+    selectedTabInfo.canvasContainer.style.cursor = 'default';
+  });
+  window.addEventListener(
+    'wheel',
+    (e) => {
+      if (e.ctrlKey) {
+        if (e.deltaY > 0) {
+          selectedTabInfo.grid.origin = [selectedTabInfo.grid.origin[0] + 100, selectedTabInfo.grid.origin[1]];
+        } else {
+          let originX = selectedTabInfo.grid.origin[0] - 100;
+          if (originX < 0) {
+            originX = 0;
+          }
+          selectedTabInfo.grid.origin = [originX, selectedTabInfo.grid.origin[1]];
+        }
+      } else {
+        if (e.deltaY > 0) {
+          selectedTabInfo.grid.origin = [selectedTabInfo.grid.origin[0], selectedTabInfo.grid.origin[1] + 100];
+        } else {
+          let originY = selectedTabInfo.grid.origin[1] - 100;
+          if (originY < 0) {
+            originY = 0;
+          }
+          selectedTabInfo.grid.origin = [selectedTabInfo.grid.origin[0], originY];
+        }
+      }
+      selectedTabInfo.grid.redraw();
+      e.preventDefault();
+    },
+    { passive: false },
+  );
 };
 
 const initSidebar = () => {
@@ -257,6 +328,7 @@ const addTab = (file: FileType) => {
       tag: 'canvas',
       class: 'canvas',
     }) as HTMLCanvasElement;
+
     canvasContainerEl.append(canvasEl);
 
     loadedTabInfo[file.path] = {
