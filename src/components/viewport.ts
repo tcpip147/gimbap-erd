@@ -4,8 +4,9 @@ import { fileExplorerEl, FileType } from '@/explorers/file-explorer';
 import { searchExplorerEl } from '@/explorers/search-explorer';
 import { closest, createElement, hasClass, removeClass, removeElement, setClass } from '@/utils/element-utils';
 
-interface TabInfo {
+export interface TabInfo {
   tab: HTMLElement;
+  toolbar: HTMLElement;
   canvasContainer: HTMLElement;
   grid: Grid;
   file: FileType;
@@ -224,14 +225,14 @@ const initResizer = () => {
   let anchorX: number;
   let anchorWidth: number;
   window.addEventListener('mousedown', (e) => {
-    if (e.target == resizerEl) {
+    if (isVisibleExplorer && e.target == resizerEl) {
       isResizingExplorer = true;
       anchorX = e.clientX;
       anchorWidth = explorerWidth;
     }
   });
   window.addEventListener('mousemove', (e) => {
-    if (isResizingExplorer) {
+    if (isVisibleExplorer && isResizingExplorer) {
       document.body.style.cursor = 'w-resize';
       explorerWidth = anchorWidth + e.clientX - anchorX;
       if (explorerWidth < 100) {
@@ -244,7 +245,6 @@ const initResizer = () => {
   });
   window.addEventListener('mouseup', (e) => {
     if (isResizingExplorer) {
-      document.body.style.cursor = 'default';
       isResizingExplorer = false;
       anchorX = 0;
       anchorWidth = 0;
@@ -252,10 +252,14 @@ const initResizer = () => {
     }
   });
   resizerEl.addEventListener('mouseenter', (e) => {
-    isVisibleResizer = true;
-    revalidateResizer();
+    if (isVisibleExplorer) {
+      document.body.style.cursor = 'w-resize';
+      isVisibleResizer = true;
+      revalidateResizer();
+    }
   });
   resizerEl.addEventListener('mouseleave', (e) => {
+    document.body.style.cursor = 'default';
     isVisibleResizer = false;
     revalidateResizer();
   });
@@ -317,6 +321,25 @@ const addTab = (file: FileType) => {
     tabEl.innerHTML = html;
     tabFolderHeaderEl.append(tabEl);
 
+    const toolbarEl = createElement({
+      tag: 'div',
+      class: 'toolbar',
+    });
+    toolbarEl.dataset.path = file.path;
+    toolbarEl.addEventListener('click', (e) => {
+      if (hasClass(e.target as HTMLElement, 'btn-add-table')) {
+        selectedTabInfo.grid.addTable();
+        redrawCanvas();
+      }
+    });
+    html = `
+      <div class='message'>READY</div>
+      <div class='button btn-add-table'>1</div>
+      <div class='button'>2</div>
+    `;
+    toolbarEl.innerHTML = html;
+    tabFolderContentEl.append(toolbarEl);
+
     const canvasContainerEl = createElement({
       tag: 'div',
       class: 'canvas-container',
@@ -333,6 +356,7 @@ const addTab = (file: FileType) => {
 
     loadedTabInfo[file.path] = {
       tab: tabEl,
+      toolbar: toolbarEl,
       canvasContainer: canvasContainerEl,
       grid: new Grid(canvasContainerEl, file),
       file: file,
@@ -349,6 +373,13 @@ const selectTab = (path: string) => {
   const tab = tabFolderHeaderEl.querySelector(`.tab[data-path='${path}']`);
   setClass(tab as HTMLElement, 'on');
 
+  prev = tabFolderContentEl.querySelector(`.toolbar.on`);
+  if (prev) {
+    removeClass(prev as HTMLElement, 'on');
+  }
+  const toolbar = tabFolderContentEl.querySelector(`.toolbar[data-path='${path}']`);
+  setClass(toolbar as HTMLElement, 'on');
+
   prev = tabFolderContentEl.querySelector(`.canvas-container.on`);
   if (prev) {
     removeClass(prev as HTMLElement, 'on');
@@ -364,6 +395,7 @@ const closeTab = (path: string) => {
   const isSelected = hasClass(info.tab, 'on');
   delete loadedTabInfo[path];
   removeElement(info.tab);
+  removeElement(info.toolbar);
   removeElement(info.canvasContainer);
   if (isSelected) {
     const latestTab = tabFolderHeaderEl.querySelector('.tab:last-child') as HTMLElement;
@@ -376,3 +408,4 @@ const closeTab = (path: string) => {
 init();
 
 export { addTab, viewportEl };
+

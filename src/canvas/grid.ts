@@ -1,3 +1,6 @@
+import Shape from '@/canvas/shape';
+import Table from '@/canvas/table';
+import { TabInfo } from '@/components/viewport';
 import { FileType } from '@/explorers/file-explorer';
 
 class Grid {
@@ -8,6 +11,7 @@ class Grid {
   scale: number;
   origin: [number, number];
   left: number;
+  shapes: Shape[] = [];
 
   constructor(canvasContainerEl: HTMLElement, file: FileType) {
     this.canvasContainer = canvasContainerEl;
@@ -27,7 +31,12 @@ class Grid {
 
   redraw() {
     this.ctx.clearRect(0, 0, this.fillWidth(), this.fillHeight());
-    this.strokeRect(this.getPixel(5, 5)[0], this.getPixel(5, 5)[1], 100, 100);
+    const shapes = this.shapes.sort((a: Shape, b: Shape) => {
+      return a.zIndex - b.zIndex;
+    });
+    shapes.forEach((shape) => {
+      shape.paint();
+    });
     this.drawRoller();
   }
 
@@ -39,34 +48,40 @@ class Grid {
     const digits = Math.round((this.fillHeight() + this.origin[1]) / 20).toString().length;
     this.left = 5 + digits * 5;
 
-    this.fillRect(0, 0, this.fillWidth(), 20);
-    this.fillRect(0, 0, 20 + this.left, this.fillHeight());
+    this.fillRect(0, 0, this.fillWidth(), 20, true);
+    this.fillRect(0, 0, 20 + this.left, this.fillHeight(), true);
 
     this.ctx.beginPath();
     for (let i = 2; i < (this.fillWidth() + this.origin[0]) / 20; i++) {
       if ((i - 1) % 5 == 0) {
-        this.moveTo(i * 20 + this.left - this.origin[0], 15);
-        this.fillText((i - 1).toString(), i * 20 + this.left - this.origin[0], 10, { color: '#999', align: 'center' });
+        this.moveTo(i * 20 + this.left - this.origin[0], 15, true);
+        this.fillText((i - 1).toString(), i * 20 + this.left - this.origin[0], 10, { color: '#999', align: 'center' }, true);
       } else {
-        this.moveTo(i * 20 + this.left - this.origin[0], 10);
+        this.moveTo(i * 20 + this.left - this.origin[0], 10, true);
       }
-      this.lineTo(i * 20 + this.left - this.origin[0], 20);
+      this.lineTo(i * 20 + this.left - this.origin[0], 20, true);
     }
     for (let i = 2; i < (this.fillHeight() + this.origin[1]) / 20; i++) {
       if ((i - 1) % 5 == 0) {
-        this.fillText((i - 1).toString(), 10 + this.left, i * 20 + 3 - this.origin[1], { color: '#999', align: 'right' });
-        this.moveTo(15 + this.left, i * 20 - this.origin[1]);
+        this.fillText((i - 1).toString(), 10 + this.left, i * 20 + 3 - this.origin[1], { color: '#999', align: 'right' }, true);
+        this.moveTo(15 + this.left, i * 20 - this.origin[1], true);
       } else {
-        this.moveTo(10 + this.left, i * 20 - this.origin[1]);
+        this.moveTo(10 + this.left, i * 20 - this.origin[1], true);
       }
-      this.lineTo(20 + this.left, i * 20 - this.origin[1]);
+      this.lineTo(20 + this.left, i * 20 - this.origin[1], true);
     }
-    this.moveTo(20 + this.left, 0);
-    this.lineTo(20 + this.left, this.fillHeight());
-    this.moveTo(0, 20);
-    this.lineTo(this.fillWidth(), 20);
+    this.moveTo(20 + this.left, 0, true);
+    this.lineTo(20 + this.left, this.fillHeight(), true);
+    this.moveTo(0, 20, true);
+    this.lineTo(this.fillWidth(), 20, true);
     this.ctx.stroke();
-    this.fillRect(0, 0, 20 + this.left, 20);
+    this.fillRect(0, 0, 20 + this.left, 20, true);
+  }
+
+  //
+
+  addTable() {
+    this.shapes.push(new Table(this));
   }
 
   //
@@ -85,28 +100,43 @@ class Grid {
   }
 
   private getPixel(x: number, y: number): [number, number] {
-    return [this.left + 20 + 20 * x - this.origin[0], 20 + 20 * y - this.origin[1]];
+    return [this.left + 20 + x - this.origin[0], 20 + y - this.origin[1]];
   }
 
   //
 
-  private fillRect(x: number, y: number, width: number, height: number) {
+  fillRect(x: number, y: number, width: number, height: number, ignoreOrigin?: boolean) {
+    if (!ignoreOrigin) {
+      [x, y] = this.getPixel(x, y);
+    }
     this.ctx.fillRect(this.crisp(x), this.crisp(y), width, height);
   }
 
-  private strokeRect(x: number, y: number, width: number, height: number) {
+  strokeRect(x: number, y: number, width: number, height: number, ignoreOrigin?: boolean) {
+    if (!ignoreOrigin) {
+      [x, y] = this.getPixel(x, y);
+    }
     this.ctx.strokeRect(this.crisp(x), this.crisp(y), width, height);
   }
 
-  private moveTo(x: number, y: number) {
+  moveTo(x: number, y: number, ignoreOrigin?: boolean) {
+    if (!ignoreOrigin) {
+      [x, y] = this.getPixel(x, y);
+    }
     this.ctx.moveTo(this.crisp(x), this.crisp(y));
   }
 
-  private lineTo(x: number, y: number) {
+  lineTo(x: number, y: number, ignoreOrigin?: boolean) {
+    if (!ignoreOrigin) {
+      [x, y] = this.getPixel(x, y);
+    }
     this.ctx.lineTo(this.crisp(x), this.crisp(y));
   }
 
-  private fillText(text: string, x: number, y: number, options: { color: string; align: CanvasTextAlign }) {
+  fillText(text: string, x: number, y: number, options: { color: string; align: CanvasTextAlign }, ignoreOrigin?: boolean) {
+    if (!ignoreOrigin) {
+      [x, y] = this.getPixel(x, y);
+    }
     const temp = this.ctx.fillStyle;
     if (options.color) {
       this.ctx.fillStyle = options.color;
