@@ -1,12 +1,14 @@
 import Grid from '@/canvas/grid';
 
 class Shape {
-  zIndex: number;
+  static HIDDEN_POSITION = -99999;
+
   grid: Grid;
+  zIndex: number = 0;
+  children: Shape[] = [];
 
   constructor(grid: Grid) {
     this.grid = grid;
-    this.zIndex = 0;
     this.init();
   }
 

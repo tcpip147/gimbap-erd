@@ -1,12 +1,18 @@
 import Shape from '@/canvas/shape';
 
 class Table extends Shape {
-  init(): void {
-    console.log('AA');
-  }
+  isGhost: boolean = false;
+  x: number = Shape.HIDDEN_POSITION;
+  y: number = Shape.HIDDEN_POSITION;
+  width: number = 0;
+  height: number = 0;
+
+  init(): void {}
 
   paint(): void {
-    this.grid?.strokeRect(40, 40, 100, 100);
+    if (this.isGhost) {
+
+    }
   }
 }
 

@@ -328,8 +328,7 @@ const addTab = (file: FileType) => {
     toolbarEl.dataset.path = file.path;
     toolbarEl.addEventListener('click', (e) => {
       if (hasClass(e.target as HTMLElement, 'btn-add-table')) {
-        selectedTabInfo.grid.addTable();
-        redrawCanvas();
+        selectedTabInfo.grid.command("ADD_TABLE");
       }
     });
     html = `
@@ -358,7 +357,7 @@ const addTab = (file: FileType) => {
       tab: tabEl,
       toolbar: toolbarEl,
       canvasContainer: canvasContainerEl,
-      grid: new Grid(canvasContainerEl, file),
+      grid: new Grid(canvasContainerEl, toolbarEl, file),
       file: file,
     };
   }
@@ -408,4 +407,3 @@ const closeTab = (path: string) => {
 init();
 
 export { addTab, viewportEl };
-

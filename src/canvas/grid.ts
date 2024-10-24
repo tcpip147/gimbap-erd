@@ -1,9 +1,16 @@
 import Shape from '@/canvas/shape';
 import Table from '@/canvas/table';
-import { TabInfo } from '@/components/viewport';
 import { FileType } from '@/explorers/file-explorer';
+import { hasClass } from '@/utils/element-utils';
+
+enum GridState {
+  READY,
+  ADDING_TABLE,
+}
 
 class Grid {
+  toolbar: HTMLElement;
+  toolbarMessage: HTMLElement;
   canvasContainer: HTMLElement;
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
@@ -12,8 +19,11 @@ class Grid {
   origin: [number, number];
   left: number;
   shapes: Shape[] = [];
+  state: GridState = GridState.READY;
 
-  constructor(canvasContainerEl: HTMLElement, file: FileType) {
+  constructor(canvasContainerEl: HTMLElement, toolbarEl: HTMLElement, file: FileType) {
+    this.toolbar = toolbarEl;
+    this.toolbarMessage = toolbarEl.querySelector('.message')!;
     this.canvasContainer = canvasContainerEl;
     this.canvas = canvasContainerEl.querySelector('.canvas')!;
     this.ctx = this.canvas.getContext('2d')!;
@@ -21,6 +31,23 @@ class Grid {
     this.scale = file.data?.scale ? file.data.scale : 1.0;
     this.origin = [0, 0];
     this.left = 5;
+
+    this.canvas.addEventListener('mousedown', (e) => {
+      if (hasClass(this.canvasContainer, 'on')) {
+      }
+    });
+
+    this.canvas.addEventListener('mousemove', (e) => {
+      if (hasClass(this.canvasContainer, 'on')) {
+        if (this.state == GridState.ADDING_TABLE) {
+        }
+      }
+    });
+
+    this.canvas.addEventListener('mouseup', (e) => {
+      if (hasClass(this.canvasContainer, 'on')) {
+      }
+    });
   }
 
   fitToSize() {
@@ -80,8 +107,16 @@ class Grid {
 
   //
 
+  setState(state: GridState) {
+    this.state = state;
+    this.toolbarMessage.innerHTML = GridState[state];
+  }
+
   addTable() {
-    this.shapes.push(new Table(this));
+    const table = new Table(this);
+    table.isGhost = true;
+    this.shapes.push(table);
+    this.setState(GridState.ADDING_TABLE);
   }
 
   //
@@ -101,6 +136,17 @@ class Grid {
 
   private getPixel(x: number, y: number): [number, number] {
     return [this.left + 20 + x - this.origin[0], 20 + y - this.origin[1]];
+  }
+
+  //
+
+  command(command: string) {
+    switch (command) {
+      case 'ADD_TABLE':
+        this.addTable();
+        break;
+    }
+    this.redraw();
   }
 
   //
