@@ -1,0 +1,21 @@
+.viewport {
+  width: 100%;
+  height: calc(100% - 30px);
+  position: relative;
+
+  .explorer-resizer {
+    position: absolute;
+    width: 4px;
+    height: 100%;
+    background: #5f6acf;
+    opacity: 0;
+    transition: opacity 100ms linear;
+    user-select: none;
+    z-index: 5;
+
+    &.on {
+      opacity: 1;
+      cursor: w-resize;
+    }
+  }
+}

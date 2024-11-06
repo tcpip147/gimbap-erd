@@ -1,0 +1,14 @@
+.explorer {
+  height: 100%;
+  float: left;
+  background: rgb(30, 30, 31);
+  box-sizing: border-box;
+
+  & > div {
+    display: none;
+  }
+
+  & > div.on {
+    display: block;
+  }
+}

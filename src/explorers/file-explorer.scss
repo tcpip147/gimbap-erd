@@ -1,0 +1,70 @@
+.file-explorer {
+  user-select: none;
+
+  .directory {
+    cursor: pointer;
+    white-space: nowrap;
+
+    span {
+      vertical-align: top;
+    }
+
+    & > .title {
+      border: 1px solid transparent;
+    }
+
+    &.on > .title {
+      border: 1px solid #5f6acf;
+    }
+
+    & > .title {
+      & > .codicon {
+        font-size: 14px;
+        margin: 2px 0px 2px 5px;
+        font-family: codicon;
+        display: inline-block;
+
+        &::before {
+          content: '\eab6';
+        }
+      }
+    }
+
+    &.open > .title > .codicon {
+      &::before {
+        content: '\eab4';
+      }
+    }
+
+    & > .file {
+      display: none;
+    }
+
+    &.open > .file {
+      display: block;
+    }
+  }
+
+  .file {
+    cursor: pointer;
+    white-space: nowrap;
+
+    span {
+      vertical-align: top;
+    }
+
+    & > .title {
+      border: 1px solid transparent;
+    }
+
+    &.on > .title {
+      border: 1px solid #5f6acf;
+    }
+
+    .codicon {
+      font-size: 14px;
+      margin: 2px 0px 2px 5px;
+      color: rgb(129, 129, 190);
+    }
+  }
+}
