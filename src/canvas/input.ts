@@ -59,10 +59,10 @@ class CanvasInput extends Shape {
   border: string | null = null;
   value: string = '';
   paddingTop: number = 2;
-  paddingRight: number = 1;
+  paddingRight: number = 5;
   paddingBottom: number = 2;
   paddingLeft: number = 5;
-  align: string = 'left';
+  align: CanvasTextAlign = 'left';
 
   private isFocused: boolean = false;
   private isShowCursor: boolean = false;
@@ -140,7 +140,7 @@ class CanvasInput extends Shape {
     this.paddingLeft = padding[3];
   }
 
-  setAlign(align: string) {
+  setAlign(align: CanvasTextAlign) {
     this.align = align;
   }
 
@@ -157,9 +157,16 @@ class CanvasInput extends Shape {
     if (this.isFocused) {
       this.ctx.strokeStyle = '#000000';
       this.ctx.fillStyle = '#ffffff';
-      this.fillRect(this.x, this.y, this.paddingLeft + this.width + this.paddingRight, this.paddingTop + this.height + this.paddingBottom, this.isRelative);
-      this.strokeRect(this.x, this.y, this.paddingLeft + this.width + this.paddingRight, this.paddingTop + this.height + this.paddingBottom, this.isRelative);
-      this.fillText(this.value, this.x + this.paddingLeft, this.y + this.paddingTop + 10, { color: '#000000', align: 'left' }, this.isRelative);
+
+      let x = this.x;
+      let tx = this.x + this.paddingLeft;
+      if (this.align == 'right') {
+        x = this.x - this.width - this.paddingLeft - this.paddingRight;
+        tx = this.x - this.paddingRight;
+      }
+      this.fillRect(x, this.y, this.paddingLeft + this.width + this.paddingRight, this.paddingTop + this.height + this.paddingBottom, this.isRelative);
+      this.strokeRect(x, this.y, this.paddingLeft + this.width + this.paddingRight, this.paddingTop + this.height + this.paddingBottom, this.isRelative);
+      this.fillText(this.value, tx, this.y + this.paddingTop + 10, { color: '#000000', align: this.align }, this.isRelative);
       if (this.isShowCursor && this.selection.selectionStart == this.selection.selectionEnd) {
         this.drawCursor();
       }
@@ -170,11 +177,11 @@ class CanvasInput extends Shape {
         this.drawUnderCursor();
       }
     } else {
-      if (this.align == 'left') {
-        this.fillText(this.value, this.x + this.paddingLeft, this.y + this.paddingTop + 10, { color: '#ffffff', align: 'left' }, this.isRelative);
-      } else if (this.align == 'right') {
-        this.fillText(this.value, this.x - this.paddingLeft, this.y + this.paddingTop + 10, { color: '#ffffff', align: 'right' }, this.isRelative);
+      let tx = this.x + this.paddingLeft;
+      if (this.align == 'right') {
+        tx = this.x - this.paddingRight;
       }
+      this.fillText(this.value, tx, this.y + this.paddingTop + 10, { color: '#ffffff', align: this.align }, this.isRelative);
     }
   }
 
@@ -186,27 +193,40 @@ class CanvasInput extends Shape {
       const ch = this.value[i];
       width += this.ctx.measureText(ch).width;
     }
-    this.width = Math.round(Math.max(this.minWidth, this.paddingLeft + width + this.paddingRight));
+    this.width = Math.round(Math.max(this.minWidth, width));
   }
 
   private getOffset(s: number) {
-    const substr = this.value.substring(0, s);
     let offset = 0;
-    for (let i = 0; i < substr.length; i++) {
-      const ch = substr[i];
-      offset += this.ctx.measureText(ch).width;
+    if (this.align == 'left') {
+      const substr = this.value.substring(0, s);
+      for (let i = 0; i < substr.length; i++) {
+        const ch = substr[i];
+        offset += this.ctx.measureText(ch).width;
+      }
+    } else if (this.align == 'right') {
+      const substr = this.value.substring(s);
+      for (let i = 0; i < substr.length; i++) {
+        const ch = substr[i];
+        offset += this.ctx.measureText(ch).width;
+      }
     }
     return offset;
   }
 
   private drawSelection() {
-    const x1 = this.x + this.paddingLeft + this.getOffset(this.selection.selectionStart);
-    const x2 = this.x + this.paddingLeft + this.getOffset(this.selection.selectionEnd);
+    let x1 = this.x + this.paddingLeft + this.getOffset(this.selection.selectionStart);
+    let x2 = this.x + this.paddingLeft + this.getOffset(this.selection.selectionEnd);
+    let min = Math.min(x1, x2);
+    let max = Math.max(x1, x2);
+    if (this.align == 'right') {
+      x1 = this.x - this.paddingRight - this.getOffset(this.selection.selectionStart);
+      x2 = this.x - this.paddingRight - this.getOffset(this.selection.selectionEnd);
+      min = Math.max(x1, x2);
+      max = Math.min(x1, x2);
+    }
     this.ctx.fillStyle = '#254a8d';
-    const min = Math.min(x1, x2);
-    const max = Math.max(x1, x2);
     this.fillRect(min, this.y + this.paddingTop, max - min, this.height, this.isRelative);
-    this.ctx.fillStyle = '#ffffff';
     const start = Math.min(this.selection.selectionStart, this.selection.selectionEnd);
     const end = Math.max(this.selection.selectionStart, this.selection.selectionEnd);
     this.ctx.font = this.font;
@@ -214,21 +234,32 @@ class CanvasInput extends Shape {
   }
 
   private drawUnderCursor() {
-    const x1 = this.x + this.paddingLeft + this.getOffset(this.selection.selectionEnd - 1);
-    const x2 = this.x + this.paddingLeft + this.getOffset(this.selection.selectionEnd);
+    let x1 = this.x + this.paddingLeft + this.getOffset(this.selection.selectionEnd - 1);
+    let x2 = this.x + this.paddingLeft + this.getOffset(this.selection.selectionEnd);
+    if (this.align == 'right') {
+      x1 = this.x - this.paddingRight - this.getOffset(this.selection.selectionEnd - 1);
+      x2 = this.x - this.paddingRight - this.getOffset(this.selection.selectionEnd);
+    }
     this.ctx.strokeStyle = '#000000';
     this.strokeLine(x1 + 1, this.y + this.paddingTop + this.height, x2 - 1, this.y + this.paddingTop + this.height, this.isRelative);
   }
 
   private drawCursor() {
-    const x1 = this.x + this.paddingLeft + this.getOffset(this.selection.selectionEnd);
+    let x = this.x + this.paddingLeft + this.getOffset(this.selection.selectionEnd);
     this.ctx.strokeStyle = '#000000';
-    this.strokeLine(x1, this.y + this.paddingTop, x1, this.y + this.paddingTop + this.height, this.isRelative);
+    if (this.align == 'right') {
+      x = this.x - this.paddingRight - this.getOffset(this.selection.selectionEnd);
+    }
+    this.strokeLine(x, this.y + this.paddingTop, x, this.y + this.paddingTop + this.height, this.isRelative);
   }
 
   private inBounded(x: number, y: number): boolean {
     [x, y] = this.toRelative(x, y);
-    return x > this.x && x < this.x + this.paddingLeft + this.width + this.paddingRight && y > this.y && y < this.y + this.paddingTop + this.height + this.paddingBottom;
+    let inBounded = x > this.x && x < this.x + this.paddingLeft + this.width + this.paddingRight && y > this.y && y < this.y + this.paddingTop + this.height + this.paddingBottom;
+    if (this.align == 'right') {
+      inBounded = x > this.x - this.width - this.paddingLeft - this.paddingRight && x < this.x && y > this.y && y < this.y + this.paddingTop + this.height + this.paddingBottom;
+    }
+    return inBounded;
   }
 
   private resetCursorInterval() {
@@ -241,18 +272,20 @@ class CanvasInput extends Shape {
   private setSelectionByMouse(e: MouseEvent) {
     let offsets = [0];
     let current = 0;
+    let twidth = 0;
+    if (this.align == 'right') {
+      twidth = this.ctx.measureText(this.value).width;
+    }
     for (let i = 0; i < this.value.length; i++) {
       const ch = this.value[i];
       this.ctx.font = this.font;
       const width = this.ctx.measureText(ch).width;
-      offsets.push(current + width / 2);
+      offsets.push(current + width / 2 - twidth);
       current += width;
     }
+
     const [offsetX] = this.toRelative(e.offsetX, e.offsetY);
     let x = offsetX - this.x - this.paddingLeft;
-    if (x < 0) {
-      x = 0;
-    }
     let result = -1;
     for (let i = 1; i < offsets.length; i++) {
       if (x >= offsets[i - 1] && x < offsets[i]) {

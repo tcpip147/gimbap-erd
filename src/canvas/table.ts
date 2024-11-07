@@ -65,9 +65,9 @@ class Table extends Shape {
     this.columns.push(column);
 
     this.titleNameInput = new CanvasInput(this.grid);
-    this.titleNameInput.setPadding([2, 1, 2, 5]);
+    this.titleNameInput.setPadding([2, 5, 2, 5]);
     this.titleCommentInput = new CanvasInput(this.grid);
-    this.titleCommentInput.setPadding([2, 1, 2, 5]);
+    this.titleCommentInput.setPadding([2, 5, 2, 5]);
     this.titleCommentInput.setAlign("right");
   }
 
