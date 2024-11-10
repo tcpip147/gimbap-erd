@@ -109,13 +109,15 @@
       height: calc(100% - 40px);
       display: none;
       position: relative;
+      outline: none;
 
       &.on {
         display: block;
       }
-      
+
       .canvas {
         display: block;
+        outline: none;
       }
     }
   }

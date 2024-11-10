@@ -56,9 +56,16 @@ const addTab = (file: File) => {
     html = `
       <div class='message'>READY</div>
       <div class='button' data-command='add-table'>1</div>
-      <div class='button'>2</div>
     `;
     toolbarEl.innerHTML = html;
+    toolbarEl.addEventListener('mousedown', (e) => {
+      if (hasClass(e.target as HTMLDivElement, 'button')) {
+        const button = e.target as HTMLDivElement;
+        if (button.dataset.command == 'add-table') {
+          
+        }
+      }
+    });
     tabFolderContentEl.append(toolbarEl);
 
     const canvasContainerEl = createElement({
@@ -69,6 +76,9 @@ const addTab = (file: File) => {
     const canvasEl = createElement({
       tag: 'canvas',
       class: 'canvas',
+      attr: {
+        tabIndex: '0',
+      },
     }) as HTMLCanvasElement;
     canvasContainerEl.append(canvasEl);
     tabFolderContentEl.append(canvasContainerEl);
@@ -129,9 +139,12 @@ const getTab = (filepath: string) => {
 
 const redrawTab = (tab: Tab) => {
   const rect = tab.canvasContainerEl.getBoundingClientRect();
-  tab.canvasEl.width = rect.width;
-  tab.canvasEl.height = rect.height;
-  tab.grid.redraw();
+  tab.canvasEl.style.width = rect.width + 'px';
+  tab.canvasEl.style.height = rect.height + 'px';
+  tab.canvasEl.width = rect.width * window.devicePixelRatio;
+  tab.canvasEl.height = rect.height * window.devicePixelRatio;
+  const ctx = tab.canvasEl.getContext('2d')!;
+  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
 };
 
 init();

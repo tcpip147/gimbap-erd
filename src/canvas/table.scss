@@ -1,0 +1,128 @@
+.table {
+  position: absolute;
+  box-sizing: border-box;
+  padding: 2px;
+  background: gray;
+
+  &.selected {
+    background: orange;
+  }
+
+  .title {
+    background: gray;
+    height: 20px;
+    border-bottom: 1px solid #404040;
+
+    .name {
+      padding: 2px 4px;
+      float: left;
+      box-sizing: border-box;
+    }
+
+    .comment {
+      padding: 2px 4px;
+      float: right;
+      box-sizing: border-box;
+    }
+
+    &::after {
+      content: '';
+      clear: both;
+    }
+  }
+
+  .row {
+    white-space: nowrap;
+    box-sizing: border-box;
+    display: flex;
+
+    &:last-child .cell {
+      border-bottom: none;
+      height: 20px;
+    }
+
+    .header-cell.cell:read-only {
+      input[type='text'] {
+        text-align: center;
+        padding: 0 9px 0 0px;
+      }
+    }
+
+    .cell {
+      padding: 0px;
+      text-align: center;
+      display: inline-block;
+      border-right: 1px solid #404040;
+      border-bottom: 1px solid #404040;
+      box-sizing: border-box;
+      height: 21px;
+      background: rgb(33, 33, 34);
+
+      &:last-child {
+        border-right: none;
+      }
+
+      input[type='text'] {
+        width: calc(100% + 9px);
+        height: 100%;
+        outline: none;
+        box-sizing: border-box;
+        border: none;
+        font-size: 12px;
+        font-family: 'Malgun Gothic';
+        padding: 0 0 0 7px;
+        position: relative;
+        left: -2px;
+
+        &:read-only {
+          background: none;
+          color: #dddddd;
+          left: 0;
+          padding: 0 0 0 5px;
+        }
+      }
+
+      .null {
+        padding-top: 2px;
+        &::after {
+          content: 'NULL';
+        }
+
+        &.on::after {
+          content: 'NOT NULL';
+        }
+      }
+
+      .codicon {
+        font-size: 14px;
+        vertical-align: middle;
+        padding: 0 5px;
+        display: none;
+
+        &.on {
+          display: inline-block;
+        }
+
+        &.pk {
+          color: rgb(255, 196, 0);
+        }
+
+        &.fk {
+          color: rgb(108, 143, 219);
+        }
+      }
+
+      &:has(.pk),
+      &:has(.null) {
+        cursor: pointer;
+      }
+    }
+  }
+
+  .table-canvas {
+    position: absolute;
+    display: none;
+    top: -5px;
+    left: -5px;
+  }
+}

@@ -1,4 +1,4 @@
-import Grid from '@/canvas/grid';
+import Grid from "@/canvas/grid";
 
 declare global {
   interface Window {
