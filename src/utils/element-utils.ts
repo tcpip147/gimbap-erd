@@ -1,4 +1,10 @@
-export const createElement = (options: { tag: string; class?: string | string[]; attr?: { [key: string]: string }; css?: Partial<CSSStyleDeclaration> }): HTMLElement => {
+export const createElement = (options: {
+  tag: string;
+  class?: string | string[];
+  attr?: { [key: string]: string };
+  css?: Partial<CSSStyleDeclaration>;
+  dataset?: { [key: string]: string };
+}): HTMLElement => {
   const el = document.createElement(options.tag);
   if (options.class) {
     if (typeof options.class == 'string') {
@@ -17,6 +23,11 @@ export const createElement = (options: { tag: string; class?: string | string[];
   if (options.css) {
     for (let key in options.css) {
       el.style[key] = options.css[key]!;
+    }
+  }
+  if (options.dataset) {
+    for (let key in options.dataset) {
+      el.dataset[key] = options.dataset[key]!;
     }
   }
   return el;

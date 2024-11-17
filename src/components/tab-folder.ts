@@ -54,18 +54,9 @@ const addTab = (file: File) => {
       class: 'toolbar',
     });
     html = `
-      <div class='message'>READY</div>
       <div class='button' data-command='add-table'>1</div>
     `;
     toolbarEl.innerHTML = html;
-    toolbarEl.addEventListener('mousedown', (e) => {
-      if (hasClass(e.target as HTMLDivElement, 'button')) {
-        const button = e.target as HTMLDivElement;
-        if (button.dataset.command == 'add-table') {
-          
-        }
-      }
-    });
     tabFolderContentEl.append(toolbarEl);
 
     const canvasContainerEl = createElement({
